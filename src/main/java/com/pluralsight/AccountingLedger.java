@@ -147,37 +147,7 @@ public class AccountingLedger {
         } catch (IOException e) {
             System.err.println("Error writing the transaction to the CSV file: " + e.getMessage());
         }
-    }
 
-    private static void printEntry(String[] entry, int[] columnWidths) {
-        for (int i = 0; i < entry.length; i++) {
-            String field = entry[i];
-            int padding = columnWidths[i] - field.length();
-            System.out.print(field);
-            for (int j = 0; j < padding; j++) {
-                System.out.print(" ");
-            }
-            System.out.print(" | ");
-        }
-        System.out.println();
-    }
-
-    private static void printLedger(List<String[]> ledger) {
-        if (ledger.isEmpty()) {
-            System.out.println("The ledger is empty.");
-        } else {
-            int[] columnWidths = new int[5];
-
-            for (String[] entry : ledger) {
-                for (int i = 0; i < entry.length; i++) {
-                    columnWidths[i] = Math.max(columnWidths[i], entry[i].length());
-                }
-            }
-
-            for (String[] entry : ledger) {
-                printEntry(entry, columnWidths);
-            }
-        }
     }
 
     private static void displayLedgerOptions(Scanner scanner, List<String[]> ledger) {
@@ -186,7 +156,7 @@ public class AccountingLedger {
             System.out.println("A) All Transactions");
             System.out.println("D) Deposits");
             System.out.println("P) Payments");
-            System.out.println("R) Reports");
+            System.out.println("R) Reports"); // Add a new option for reports
             System.out.println("H) Home");
             System.out.print("Choose ledger option: ");
 
@@ -207,12 +177,109 @@ public class AccountingLedger {
                     printLedgerByType(ledger, false);
                     break;
                 case "R":
-                    System.out.println("Reports:");
+                    displayReportsMenu(scanner, ledger);
                     break;
                 case "H":
                     return; // Return to the main menu
                 default:
                     System.out.println("Please enter a valid ledger option.");
+            }
+        }
+    }
+
+    private static void displayReportsMenu(Scanner scanner, List<String[]> ledger) {
+        while (true) {
+            System.out.println("\nReports Menu");
+            System.out.println("1) Month to Date");
+            System.out.println("2) Previous Month");
+            System.out.println("3) Year to Date");
+            System.out.println("4) Previous Year");
+            System.out.println("5) Search by Vendor");
+            System.out.println("B) Back to Ledger");
+            System.out.print("Choose a report option: ");
+
+            String reportOption = scanner.next().toUpperCase().trim();
+            scanner.nextLine(); // Consume the newline character
+
+            switch (reportOption) {
+                case "1":
+                    generateMonthToDateReport(ledger);
+                    break;
+                case "2":
+                    generatePreviousMonthReport(ledger);
+                    break;
+                case "3":
+                    generateYearToDateReport(ledger);
+                    break;
+                case "4":
+                    generatePreviousYearReport(ledger);
+                    break;
+                case "5":
+                    generateVendorSearchReport(scanner, ledger);
+                    break;
+                case "B":
+                    return; // Return to the Ledger menu
+                default:
+                    System.out.println("Please enter a valid report option.");
+            }
+        }
+    }
+
+    private static void generateMonthToDateReport(List<String[]> ledger) {
+        // Month to Date report
+        System.out.println("Generating Month to Date Report...");
+    }
+
+    private static void generatePreviousMonthReport(List<String[]> ledger) {
+        // Previous Month report
+        System.out.println("Generating Previous Month Report...");
+    }
+
+    private static void generateYearToDateReport(List<String[]> ledger) {
+        // Year to Date report
+        System.out.println("Generating Year to Date Report...");
+    }
+
+    private static void generatePreviousYearReport(List<String[]> ledger) {
+        // Previous Year report
+        System.out.println("Generating Previous Year Report...");
+    }
+
+    private static void generateVendorSearchReport(Scanner scanner, List<String[]> ledger) {
+        // Report by searching for a vendor
+        System.out.print("Enter the vendor name to search for: ");
+        String vendorName = scanner.nextLine().trim();
+
+        List<String[]> searchResults = new ArrayList<>();
+
+        for (String[] entry : ledger) {
+            if (entry[3].equalsIgnoreCase(vendorName)) {
+                searchResults.add(entry);
+            }
+        }
+
+        if (searchResults.isEmpty()) {
+            System.out.println("No transactions found for the vendor: " + vendorName);
+        } else {
+            System.out.println("Transactions for Vendor: " + vendorName);
+            printLedger(searchResults);
+        }
+    }
+
+    private static void printLedger(List<String[]> ledger) {
+        if (ledger.isEmpty()) {
+            System.out.println("The ledger is empty.");
+        } else {
+            int[] columnWidths = new int[5];
+
+            for (String[] entry : ledger) {
+                for (int i = 0; i < entry.length; i++) {
+                    columnWidths[i] = Math.max(columnWidths[i], entry[i].length());
+                }
+            }
+
+            for (String[] entry : ledger) {
+                printEntry(entry, columnWidths);
             }
         }
     }
@@ -237,5 +304,18 @@ public class AccountingLedger {
                 printEntry(entry, columnWidths);
             }
         }
+    }
+
+    private static void printEntry(String[] entry, int[] columnWidths) {
+        for (int i = 0; i < entry.length; i++) {
+            String field = entry[i];
+            int padding = columnWidths[i] - field.length();
+            System.out.print(field);
+            for (int j = 0; j < padding; j++) {
+                System.out.print(" ");
+            }
+            System.out.print(" | ");
+        }
+        System.out.println();
     }
 }
