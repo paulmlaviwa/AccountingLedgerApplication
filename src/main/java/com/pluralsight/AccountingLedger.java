@@ -1,6 +1,7 @@
 package com.pluralsight;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -156,7 +157,7 @@ public class AccountingLedger {
             System.out.println("A) All Transactions");
             System.out.println("D) Deposits");
             System.out.println("P) Payments");
-            System.out.println("R) Reports"); // Add a new option for reports
+            System.out.println("R) Reports");
             System.out.println("H) Home");
             System.out.print("Choose ledger option: ");
 
@@ -195,7 +196,7 @@ public class AccountingLedger {
             System.out.println("3) Year to Date");
             System.out.println("4) Previous Year");
             System.out.println("5) Search by Vendor");
-            System.out.println("B) Back to Ledger");
+            System.out.println("0) Back to Ledger");
             System.out.print("Choose a report option: ");
 
             String reportOption = scanner.next().toUpperCase().trim();
@@ -217,7 +218,7 @@ public class AccountingLedger {
                 case "5":
                     generateVendorSearchReport(scanner, ledger);
                     break;
-                case "B":
+                case "0":
                     return; // Return to the Ledger menu
                 default:
                     System.out.println("Please enter a valid report option.");
@@ -226,34 +227,47 @@ public class AccountingLedger {
     }
 
     private static void generateMonthToDateReport(List<String[]> ledger) {
-        // Month to Date report
-        System.out.println("Generating Month to Date Report...");
+        LocalDate currentDate = getCurrentLocalDate();
+        LocalDate firstDayOfMonth = currentDate.withDayOfMonth(1);
+
+        System.out.println("Month to Date Transactions:");
+        filterAndPrintTransactions(ledger, firstDayOfMonth, currentDate);
     }
 
     private static void generatePreviousMonthReport(List<String[]> ledger) {
-        // Previous Month report
-        System.out.println("Generating Previous Month Report...");
+        LocalDate currentDate = getCurrentLocalDate();
+        LocalDate firstDayOfPreviousMonth = currentDate.minusMonths(1).withDayOfMonth(1);
+        LocalDate lastDayOfPreviousMonth = currentDate.withDayOfMonth(1).minusDays(1);
+
+        System.out.println("Previous Month Transactions:");
+        filterAndPrintTransactions(ledger, firstDayOfPreviousMonth, lastDayOfPreviousMonth);
     }
 
     private static void generateYearToDateReport(List<String[]> ledger) {
-        // Year to Date report
-        System.out.println("Generating Year to Date Report...");
+        LocalDate currentDate = getCurrentLocalDate();
+        LocalDate firstDayOfYear = currentDate.withDayOfYear(1);
+
+        System.out.println("Year to Date Transactions:");
+        filterAndPrintTransactions(ledger, firstDayOfYear, currentDate);
     }
 
     private static void generatePreviousYearReport(List<String[]> ledger) {
-        // Previous Year report
-        System.out.println("Generating Previous Year Report...");
+        LocalDate currentDate = getCurrentLocalDate();
+        LocalDate firstDayOfPreviousYear = currentDate.minusYears(1).withDayOfYear(1);
+        LocalDate lastDayOfPreviousYear = currentDate.minusYears(1).withDayOfYear(currentDate.getDayOfYear());
+
+        System.out.println("Previous Year Transactions:");
+        filterAndPrintTransactions(ledger, firstDayOfPreviousYear, lastDayOfPreviousYear);
     }
 
     private static void generateVendorSearchReport(Scanner scanner, List<String[]> ledger) {
-        // Report by searching for a vendor
         System.out.print("Enter the vendor name to search for: ");
         String vendorName = scanner.nextLine().trim();
 
         List<String[]> searchResults = new ArrayList<>();
 
         for (String[] entry : ledger) {
-            if (entry[3].equalsIgnoreCase(vendorName)) {
+            if (entry[3].toLowerCase().contains(vendorName.toLowerCase())) {
                 searchResults.add(entry);
             }
         }
@@ -266,20 +280,37 @@ public class AccountingLedger {
         }
     }
 
+    private static LocalDate getCurrentLocalDate() {
+        ZoneId zoneId = ZoneId.of("UTC");
+        ZonedDateTime currentTime = ZonedDateTime.now(zoneId);
+        return currentTime.toLocalDate();
+    }
+
+    private static void filterAndPrintTransactions(List<String[]> ledger, LocalDate startDate, LocalDate endDate) {
+        // To skip the header row when iterating through the ledger
+        boolean firstRow = true;
+
+        for (String[] entry : ledger) {
+            if (firstRow) {
+                firstRow = false;
+                continue; // Skip the header row
+            }
+
+            LocalDate transactionDate = LocalDate.parse(entry[0]);
+
+            if (!transactionDate.isBefore(startDate) && !transactionDate.isAfter(endDate)) {
+                printEntry(entry);
+            }
+        }
+    }
+
+
     private static void printLedger(List<String[]> ledger) {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
         } else {
-            int[] columnWidths = new int[5];
-
             for (String[] entry : ledger) {
-                for (int i = 0; i < entry.length; i++) {
-                    columnWidths[i] = Math.max(columnWidths[i], entry[i].length());
-                }
-            }
-
-            for (String[] entry : ledger) {
-                printEntry(entry, columnWidths);
+                printEntry(entry);
             }
         }
     }
@@ -290,30 +321,17 @@ public class AccountingLedger {
             return;
         }
 
-        int[] columnWidths = new int[5];
         for (String[] entry : ledger) {
-            if ((deposits && entry[4].charAt(0) != '-') || (!deposits && entry[4].charAt(0) == '-')) {
-                for (int i = 0; i < entry.length; i++) {
-                    columnWidths[i] = Math.max(columnWidths[i], entry[i].length());
-                }
-            }
-        }
-
-        for (String[] entry : ledger) {
-            if ((deposits && entry[4].charAt(0) != '-') || (!deposits && entry[4].charAt(0) == '-')) {
-                printEntry(entry, columnWidths);
+            boolean isDeposit = entry[4].charAt(0) != '-';
+            if ((deposits && isDeposit) || (!deposits && !isDeposit)) {
+                printEntry(entry);
             }
         }
     }
 
-    private static void printEntry(String[] entry, int[] columnWidths) {
-        for (int i = 0; i < entry.length; i++) {
-            String field = entry[i];
-            int padding = columnWidths[i] - field.length();
+    private static void printEntry(String[] entry) {
+        for (String field : entry) {
             System.out.print(field);
-            for (int j = 0; j < padding; j++) {
-                System.out.print(" ");
-            }
             System.out.print(" | ");
         }
         System.out.println();
