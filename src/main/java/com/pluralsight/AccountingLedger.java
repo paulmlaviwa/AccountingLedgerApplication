@@ -10,10 +10,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class AccountingLedger {
-    // Format for displaying money amounts with commas and two decimal places
     private static final DecimalFormat moneyFormat = new DecimalFormat("#,###.00");
-
-    // Variables for storing formatted date, time, and amount
     private static String formattedDate = "";
     private static String formattedTime = "";
     private static String formattedAmount = "";
@@ -22,13 +19,11 @@ public class AccountingLedger {
         List<String[]> ledger = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
 
-        // Load existing ledger data from the CSV file
         loadLedgerFromCSV("src/main/resources/transactions.csv", ledger);
 
-        if (ledger.isEmpty()) {
-            // The ledger is empty, so add the header
+        if (ledger.isEmpty() || !hasHeader(ledger)) {
             String[] header = {"Date", "Time", "Description", "Vendor", "Amount"};
-            ledger.add(header);
+            ledger.add(0, header);
         }
 
         while (true) {
@@ -48,7 +43,7 @@ public class AccountingLedger {
                     String transactionVendor;
                     double transactionAmount;
 
-                    scanner.nextLine(); // Consume the newline character
+                    scanner.nextLine();
 
                     System.out.print("Enter the transaction description: ");
                     transactionDescription = scanner.nextLine().trim();
@@ -67,30 +62,19 @@ public class AccountingLedger {
                     formattedDate = currentTime.format(dateFormatter);
                     formattedTime = currentTime.format(timeFormatter);
 
-                    // Prefix the transaction amount with '-' for payments
                     formattedAmount = userChoice.equals("P") ? "-" + moneyFormat.format(transactionAmount) : moneyFormat.format(transactionAmount);
 
                     String[] transactionEntry = {formattedDate, formattedTime, transactionDescription, transactionVendor, formattedAmount};
 
                     ledger.add(transactionEntry);
 
-                    // Write the transaction to the CSV file
                     writeTransactionToCSV("src/main/resources/transactions.csv", transactionEntry);
 
                     System.out.printf("%.2f %s was successful%n", transactionAmount, userChoice.equals("D") ? "deposit" : "payment");
                     break;
 
                 case "L":
-                    System.out.println("Here is your Ledger Information:");
-                    for (String[] entry : ledger) {
-                        formattedDate = entry[0];
-                        formattedTime = entry[1];
-                        String description = entry[2];
-                        String vendor = entry[3];
-                        formattedAmount = entry[4];
-
-                        System.out.println(formattedDate + " | " + formattedTime + " | " + description + " | " + vendor + " | " + formattedAmount);
-                    }
+                    displayLedgerOptions(scanner, ledger);
                     break;
 
                 case "X":
@@ -109,7 +93,6 @@ public class AccountingLedger {
         }
     }
 
-    // Method to validate and get a valid amount from the user
     private static double getValidAmount(Scanner scanner) {
         double amount = 0.0;
         boolean valid = false;
@@ -119,7 +102,6 @@ public class AccountingLedger {
             String input = scanner.nextLine().trim();
 
             try {
-                // Replace commas with an empty string to support user input with commas
                 amount = Double.parseDouble(input.replace(",", ""));
                 valid = true;
             } catch (NumberFormatException e) {
@@ -130,7 +112,20 @@ public class AccountingLedger {
         return amount;
     }
 
-    // Method to load ledger data from a CSV file
+    private static boolean hasHeader(List<String[]> ledger) {
+        if (ledger.isEmpty()) {
+            return false;
+        }
+
+        String[] firstEntry = ledger.get(0);
+        return firstEntry.length == 5 &&
+                firstEntry[0].equals("Date") &&
+                firstEntry[1].equals("Time") &&
+                firstEntry[2].equals("Description") &&
+                firstEntry[3].equals("Vendor") &&
+                firstEntry[4].equals("Amount");
+    }
+
     private static void loadLedgerFromCSV(String filePath, List<String[]> ledger) {
         try (BufferedReader csvReader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -143,7 +138,6 @@ public class AccountingLedger {
         }
     }
 
-    // Method to write a transaction to the CSV file
     private static void writeTransactionToCSV(String filePath, String[] transaction) {
         try (FileWriter csvWriter = new FileWriter(filePath, true)) {
             String formattedTransaction = String.join("|", transaction);
@@ -152,6 +146,96 @@ public class AccountingLedger {
             csvWriter.flush();
         } catch (IOException e) {
             System.err.println("Error writing the transaction to the CSV file: " + e.getMessage());
+        }
+    }
+
+    private static void printEntry(String[] entry, int[] columnWidths) {
+        for (int i = 0; i < entry.length; i++) {
+            String field = entry[i];
+            int padding = columnWidths[i] - field.length();
+            System.out.print(field);
+            for (int j = 0; j < padding; j++) {
+                System.out.print(" ");
+            }
+            System.out.print(" | ");
+        }
+        System.out.println();
+    }
+
+    private static void printLedger(List<String[]> ledger) {
+        if (ledger.isEmpty()) {
+            System.out.println("The ledger is empty.");
+        } else {
+            int[] columnWidths = new int[5];
+
+            for (String[] entry : ledger) {
+                for (int i = 0; i < entry.length; i++) {
+                    columnWidths[i] = Math.max(columnWidths[i], entry[i].length());
+                }
+            }
+
+            for (String[] entry : ledger) {
+                printEntry(entry, columnWidths);
+            }
+        }
+    }
+
+    private static void displayLedgerOptions(Scanner scanner, List<String[]> ledger) {
+        while (true) {
+            System.out.println("\nLedger Options");
+            System.out.println("A) All Transactions");
+            System.out.println("D) Deposits");
+            System.out.println("P) Payments");
+            System.out.println("R) Reports");
+            System.out.println("H) Home");
+            System.out.print("Choose ledger option: ");
+
+            String ledgerOption = scanner.next().toUpperCase().trim();
+            scanner.nextLine(); // Consume the newline character
+
+            switch (ledgerOption) {
+                case "A":
+                    System.out.println("All Transactions:");
+                    printLedger(ledger);
+                    break;
+                case "D":
+                    System.out.println("Deposits:");
+                    printLedgerByType(ledger, true);
+                    break;
+                case "P":
+                    System.out.println("Payments:");
+                    printLedgerByType(ledger, false);
+                    break;
+                case "R":
+                    System.out.println("Reports:");
+                    break;
+                case "H":
+                    return; // Return to the main menu
+                default:
+                    System.out.println("Please enter a valid ledger option.");
+            }
+        }
+    }
+
+    private static void printLedgerByType(List<String[]> ledger, boolean deposits) {
+        if (ledger.isEmpty()) {
+            System.out.println("The ledger is empty.");
+            return;
+        }
+
+        int[] columnWidths = new int[5];
+        for (String[] entry : ledger) {
+            if ((deposits && entry[4].charAt(0) != '-') || (!deposits && entry[4].charAt(0) == '-')) {
+                for (int i = 0; i < entry.length; i++) {
+                    columnWidths[i] = Math.max(columnWidths[i], entry[i].length());
+                }
+            }
+        }
+
+        for (String[] entry : ledger) {
+            if ((deposits && entry[4].charAt(0) != '-') || (!deposits && entry[4].charAt(0) == '-')) {
+                printEntry(entry, columnWidths);
+            }
         }
     }
 }
