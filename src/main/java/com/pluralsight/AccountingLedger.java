@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -304,11 +305,13 @@ public class AccountingLedger {
         }
     }
 
-
     private static void printLedger(List<String[]> ledger) {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
         } else {
+            // Reverse the ledger list
+            Collections.reverse(ledger);
+
             for (String[] entry : ledger) {
                 printEntry(entry);
             }
@@ -320,6 +323,9 @@ public class AccountingLedger {
             System.out.println("The ledger is empty.");
             return;
         }
+
+        // Reverse the ledger list
+        Collections.reverse(ledger);
 
         for (String[] entry : ledger) {
             boolean isDeposit = entry[4].charAt(0) != '-';
