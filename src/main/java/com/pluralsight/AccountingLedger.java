@@ -21,20 +21,22 @@ public class AccountingLedger {
         List<String[]> ledger = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
 
-        loadLedgerFromCSV("src/main/resources/transactions.csv", ledger);
+        loadLedgerFromCSV(ledger);
 
         if (ledger.isEmpty() || !hasHeader(ledger)) {
             String[] header = {"Date", "Time", "Description", "Vendor", "Amount"};
             ledger.add(0, header);
         }
 
+        //Displaying the menu to user until user exits from the app
         while (true) {
+            System.out.println("\nYour Financial Transaction Dashboard");
             System.out.println("\nHome Screen");
-            System.out.println("D) Add Deposit");
-            System.out.println("P) Make Payment");
-            System.out.println("L) Ledger");
-            System.out.println("X) Exit");
-            System.out.print("Choose your option: ");
+            System.out.println("\tD) Add Deposit");
+            System.out.println("\tP) Make Payment");
+            System.out.println("\tL) Ledger");
+            System.out.println("\tX) Exit");
+            System.out.print("What would you like to do?: ");
 
             String userChoice = scanner.next().toUpperCase().trim();
 
@@ -128,8 +130,8 @@ public class AccountingLedger {
                 firstEntry[4].equals("Amount");
     }
 
-    private static void loadLedgerFromCSV(String filePath, List<String[]> ledger) {
-        try (BufferedReader csvReader = new BufferedReader(new FileReader(filePath))) {
+    private static void loadLedgerFromCSV(List<String[]> ledger) {
+        try (BufferedReader csvReader = new BufferedReader(new FileReader("src/main/resources/transactions.csv"))) {
             String line;
             while ((line = csvReader.readLine()) != null) {
                 String[] entry = line.split("\\|");
@@ -155,12 +157,12 @@ public class AccountingLedger {
     private static void displayLedgerOptions(Scanner scanner, List<String[]> ledger) {
         while (true) {
             System.out.println("\nLedger Options");
-            System.out.println("A) All Transactions");
-            System.out.println("D) Deposits");
-            System.out.println("P) Payments");
-            System.out.println("R) Reports");
-            System.out.println("H) Home");
-            System.out.print("Choose ledger option: ");
+            System.out.println("\tA) All Transactions");
+            System.out.println("\tD) Deposits");
+            System.out.println("\tP) Payments");
+            System.out.println("\tR) Reports");
+            System.out.println("\tH) Home");
+            System.out.print("Choose your ledger option: ");
 
             String ledgerOption = scanner.next().toUpperCase().trim();
             scanner.nextLine(); // Consume the newline character
@@ -171,11 +173,11 @@ public class AccountingLedger {
                     printLedger(ledger);
                     break;
                 case "D":
-                    System.out.println("Deposits:");
+                    System.out.println("Below is a comprehensive record of your deposit transactions: \n");
                     printLedgerByType(ledger, true);
                     break;
                 case "P":
-                    System.out.println("Payments:");
+                    System.out.println("Below is a comprehensive record of your payment transactions: \n");
                     printLedgerByType(ledger, false);
                     break;
                 case "R":
@@ -192,12 +194,12 @@ public class AccountingLedger {
     private static void displayReportsMenu(Scanner scanner, List<String[]> ledger) {
         while (true) {
             System.out.println("\nReports Menu");
-            System.out.println("1) Month to Date");
-            System.out.println("2) Previous Month");
-            System.out.println("3) Year to Date");
-            System.out.println("4) Previous Year");
-            System.out.println("5) Search by Vendor");
-            System.out.println("0) Back to Ledger");
+            System.out.println("\t1) Month to Date");
+            System.out.println("\t2) Previous Month");
+            System.out.println("\t3) Year to Date");
+            System.out.println("\t4) Previous Year");
+            System.out.println("\t5) Search by Vendor");
+            System.out.println("\t0) Back to Ledger");
             System.out.print("Choose a report option: ");
 
             String reportOption = scanner.next().toUpperCase().trim();
@@ -309,7 +311,7 @@ public class AccountingLedger {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
         } else {
-            // Skip the first entry (header) and reverse the rest of the ledger list
+            // Skip the first header and reverse the rest of the ledger list
             List<String[]> reversedLedger = new ArrayList<>(ledger.subList(1, ledger.size()));
             Collections.reverse(reversedLedger);
 
@@ -328,7 +330,7 @@ public class AccountingLedger {
             return;
         }
 
-        // Skip the first entry (header) and reverse the rest of the ledger list
+        // Skip the first header and reverse the rest of the ledger list
         List<String[]> reversedLedger = new ArrayList<>(ledger.subList(1, ledger.size()));
         Collections.reverse(reversedLedger);
 
