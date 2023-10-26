@@ -15,6 +15,7 @@ The **Accounting Ledger Application** is a Java-based financial management tool 
 
 
 - **Report Generation**: Users can generate various types of reports, including Month to Date, Previous Month, Year to Date, Previous Year, and Vendor-specific reports.
+  
 ![Screenshot (399)](https://github.com/paulmlaviwa/AccountingLedgerApplication/assets/14105717/96b838f2-74dd-480c-b3d3-896c34776947)
 
 - **Data Filtering**: You can filter transactions by type (deposits or payments) and search for specific transactions by vendor.
