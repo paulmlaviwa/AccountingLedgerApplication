@@ -309,10 +309,14 @@ public class AccountingLedger {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
         } else {
-            // Reverse the ledger list
-            Collections.reverse(ledger);
+            // Skip the first entry (header) and reverse the rest of the ledger list
+            List<String[]> reversedLedger = new ArrayList<>(ledger.subList(1, ledger.size()));
+            Collections.reverse(reversedLedger);
 
-            for (String[] entry : ledger) {
+            // Print the header
+            printEntry(ledger.get(0));
+
+            for (String[] entry : reversedLedger) {
                 printEntry(entry);
             }
         }
@@ -324,10 +328,14 @@ public class AccountingLedger {
             return;
         }
 
-        // Reverse the ledger list
-        Collections.reverse(ledger);
+        // Skip the first entry (header) and reverse the rest of the ledger list
+        List<String[]> reversedLedger = new ArrayList<>(ledger.subList(1, ledger.size()));
+        Collections.reverse(reversedLedger);
 
-        for (String[] entry : ledger) {
+        // Print the header
+        printEntry(ledger.get(0));
+
+        for (String[] entry : reversedLedger) {
             boolean isDeposit = entry[4].charAt(0) != '-';
             if ((deposits && isDeposit) || (!deposits && !isDeposit)) {
                 printEntry(entry);
