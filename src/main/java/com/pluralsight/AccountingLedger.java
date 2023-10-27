@@ -28,7 +28,7 @@ public class AccountingLedger {
             ledger.add(0, header);
         }
 
-        //Displaying the menu to user until user exits from the app
+        // Displaying the main menu to the user until the user exits from the app
         while (true) {
             System.out.println("\nYour Financial Transaction Dashboard");
             System.out.println("\nHome Screen");
@@ -151,7 +151,6 @@ public class AccountingLedger {
         } catch (IOException e) {
             System.err.println("Error writing the transaction to the CSV file: " + e.getMessage());
         }
-
     }
 
     private static void displayLedgerOptions(Scanner scanner, List<String[]> ledger) {
@@ -311,14 +310,19 @@ public class AccountingLedger {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
         } else {
-            // Skip the first header and reverse the rest of the ledger list
-            List<String[]> reversedLedger = new ArrayList<>(ledger.subList(1, ledger.size()));
-            Collections.reverse(reversedLedger);
+            // Skip the first header
+            String[] header = ledger.get(0);
+
+            // Create a list for entries (excluding the header)
+            List<String[]> entries = ledger.subList(1, ledger.size());
+
+            // Reverse the order of entries to display the newest first
+            Collections.reverse(entries);
 
             // Print the header
-            printEntry(ledger.get(0));
+            printEntry(header);
 
-            for (String[] entry : reversedLedger) {
+            for (String[] entry : entries) {
                 printEntry(entry);
             }
         }
@@ -330,14 +334,19 @@ public class AccountingLedger {
             return;
         }
 
-        // Skip the first header and reverse the rest of the ledger list
-        List<String[]> reversedLedger = new ArrayList<>(ledger.subList(1, ledger.size()));
-        Collections.reverse(reversedLedger);
+        // Skip the first header
+        String[] header = ledger.get(0);
+
+        // Create a list for entries (excluding the header)
+        List<String[]> entries = ledger.subList(1, ledger.size());
+
+        // Reverse the order of entries to display the newest first
+        Collections.reverse(entries);
 
         // Print the header
-        printEntry(ledger.get(0));
+        printEntry(header);
 
-        for (String[] entry : reversedLedger) {
+        for (String[] entry : entries) {
             boolean isDeposit = entry[4].charAt(0) != '-';
             if ((deposits && isDeposit) || (!deposits && !isDeposit)) {
                 printEntry(entry);
