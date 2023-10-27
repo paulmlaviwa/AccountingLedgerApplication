@@ -62,3 +62,6 @@ In the Accounting Ledger Application, it's important to note that the convention
 2. **Consistency**: This approach aligns with common accounting practices and conventions. It ensures that financial transactions in the ledger are intuitive and straightforward to understand.
 
 3. **Simplified Calculations**: When you generate reports or calculate balances, having deposits and payments as positive and negative values respectively simplifies arithmetic operations.
+
+One thing that is interesting in this project is that I have implemented a feature in the code that allows the app to fetch the current date and time in Coordinated Universal Time using Java's ZonedDateTime and DateTimeFormatter classes. UTC is a uniform and stable time reference, irrespective of geographical location or time zones.
+![Screenshot (406)](https://github.com/paulmlaviwa/AccountingLedgerApplication/assets/14105717/e4af570c-e661-4b45-b303-b6f8cdb5bb06)
