@@ -328,6 +328,7 @@ public class AccountingLedger {
         }
     }
 
+
     private static void printLedgerByType(List<String[]> ledger, boolean deposits) {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
@@ -353,6 +354,7 @@ public class AccountingLedger {
             }
         }
     }
+
 
     private static void printEntry(String[] entry) {
         for (String field : entry) {
