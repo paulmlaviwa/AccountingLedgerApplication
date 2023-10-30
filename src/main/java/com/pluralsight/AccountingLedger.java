@@ -28,7 +28,6 @@ public class AccountingLedger {
             ledger.add(0, header);
         }
 
-        // Displaying the main menu to the user until the user exits from the app
         while (true) {
             System.out.println("\nYour Financial Transaction Dashboard");
             System.out.println("\nHome Screen");
@@ -160,6 +159,7 @@ public class AccountingLedger {
             System.out.println("\tD) Deposits");
             System.out.println("\tP) Payments");
             System.out.println("\tR) Reports");
+            System.out.println("\tC) Custom Search");
             System.out.println("\tH) Home");
             System.out.print("Choose your ledger option: ");
 
@@ -181,6 +181,9 @@ public class AccountingLedger {
                     break;
                 case "R":
                     displayReportsMenu(scanner, ledger);
+                    break;
+                case "C":
+                    customSearch(ledger, scanner);
                     break;
                 case "H":
                     return; // Return to the main menu
@@ -282,6 +285,90 @@ public class AccountingLedger {
         }
     }
 
+    private static void customSearch(List<String[]> ledger, Scanner scanner) {
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        String description = null;
+        String vendor = null;
+        Double amount = null;
+
+        // Get search criteria from the user
+        System.out.print("Enter Start Date (yyyy-MM-dd): ");
+        String startDateStr = scanner.nextLine().trim();
+        if (!startDateStr.isEmpty()) {
+            startDate = LocalDate.parse(startDateStr);
+        }
+
+        System.out.print("Enter End Date (yyyy-MM-dd): ");
+        String endDateStr = scanner.nextLine().trim();
+        if (!endDateStr.isEmpty()) {
+            endDate = LocalDate.parse(endDateStr);
+        }
+
+        System.out.print("Enter Description: ");
+        description = scanner.nextLine().trim();
+
+        System.out.print("Enter Vendor: ");
+        vendor = scanner.nextLine().trim();
+
+        System.out.print("Enter Amount: ");
+        String amountStr = scanner.nextLine().trim();
+        if (!amountStr.isEmpty()) {
+            try {
+                amount = Double.parseDouble(amountStr.replace(",", ""));
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid amount. Search for amount will be ignored.");
+            }
+        }
+
+        // Print the ledger entries that match the search criteria
+        System.out.println("Custom Search Results:");
+        printCustomSearchResults(ledger, startDate, endDate, description, vendor, amount);
+    }
+
+    private static void printCustomSearchResults(List<String[]> ledger, LocalDate startDate, LocalDate endDate, String description, String vendor, Double amount) {
+        boolean firstRow = true;
+
+        for (String[] entry : ledger) {
+            if (firstRow) {
+                firstRow = false;
+                continue;
+            }
+
+            LocalDate transactionDate = LocalDate.parse(entry[0]);
+            String transactionDescription = entry[2];
+            String transactionVendor = entry[3];
+            double transactionAmount = Double.parseDouble(entry[4].replace(",", ""));
+
+            boolean match = true;
+
+            if (startDate != null && !transactionDate.isAfter(startDate)) {
+                match = false;
+            }
+
+            if (endDate != null && !transactionDate.isBefore(endDate)) {
+                match = false;
+            }
+
+            if (description != null && !transactionDescription.toLowerCase().contains(description.toLowerCase())) {
+                match = false;
+            }
+
+            if (vendor != null && !transactionVendor.toLowerCase().contains(vendor.toLowerCase())) {
+                match = false;
+            }
+
+            if (amount != null && transactionAmount != amount) {
+                match = false;
+            }
+
+            if (match) {
+                printEntry(entry);
+            }
+        }
+    }
+
+
     private static LocalDate getCurrentLocalDate() {
         ZoneId zoneId = ZoneId.of("UTC");
         ZonedDateTime currentTime = ZonedDateTime.now(zoneId);
@@ -289,13 +376,12 @@ public class AccountingLedger {
     }
 
     private static void filterAndPrintTransactions(List<String[]> ledger, LocalDate startDate, LocalDate endDate) {
-        // To skip the header row when iterating through the ledger
         boolean firstRow = true;
 
         for (String[] entry : ledger) {
             if (firstRow) {
                 firstRow = false;
-                continue; // Skip the header row
+                continue;
             }
 
             LocalDate transactionDate = LocalDate.parse(entry[0]);
@@ -310,16 +396,10 @@ public class AccountingLedger {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
         } else {
-            // Skip the first header
             String[] header = ledger.get(0);
-
-            // Create a list for entries (excluding the header)
             List<String[]> entries = ledger.subList(1, ledger.size());
-
-            // Reverse the order of entries to display the newest first
             Collections.reverse(entries);
 
-            // Print the header
             printEntry(header);
 
             for (String[] entry : entries) {
@@ -328,23 +408,16 @@ public class AccountingLedger {
         }
     }
 
-
     private static void printLedgerByType(List<String[]> ledger, boolean deposits) {
         if (ledger.isEmpty()) {
             System.out.println("The ledger is empty.");
             return;
         }
 
-        // Skip the first header
         String[] header = ledger.get(0);
-
-        // Create a list for entries (excluding the header)
         List<String[]> entries = ledger.subList(1, ledger.size());
-
-        // Reverse the order of entries to display the newest first
         Collections.reverse(entries);
 
-        // Print the header
         printEntry(header);
 
         for (String[] entry : entries) {
@@ -354,7 +427,6 @@ public class AccountingLedger {
             }
         }
     }
-
 
     private static void printEntry(String[] entry) {
         for (String field : entry) {
