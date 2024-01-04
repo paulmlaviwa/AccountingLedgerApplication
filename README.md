@@ -1,10 +1,10 @@
 # Accounting Ledger Application
 
-The **Accounting Ledger Application** is a Java-based financial management tool that simplifies financial tracking and reporting. It allows users to record deposits and payments, generate reports, and analyze their financial data conveniently.
+The **Accounting Ledger Application** is a Java-based financial management tool that simplifies financial tracking and reporting. It allows users to record deposits and payments, generate reports, and analyze their financial data conveniently.        
 
 ![Screenshot (396)](https://github.com/paulmlaviwa/AccountingLedgerApplication/assets/14105717/22a6641b-05b6-4932-8b86-ce1e355a4de5)
 
-## Features
+## Features.
 
 - **User-Friendly Interface**: The application offers a simple and text-based menu for interacting with your financial data.
 
